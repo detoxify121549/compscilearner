@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  passwordHash String
+  name         String
+  role         String         @default("USER")
+  createdAt    DateTime       @default(now())
+  progress     UserProgress[]
+  tasks        UserTask[]
+}
+
+model Track {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  icon        String
+  color       String
+  order       Int
+  modules     Module[]
+}
+
+model Module {
+  id             String   @id @default(cuid())
+  trackId        String
+  name           String
+  slug           String
+  description    String
+  order          Int
+  difficulty     String
+  estimatedHours Int      @default(0)
+  track          Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  lessons        Lesson[]
+  tasks          UserTask[]
+
+  @@unique([trackId, slug])
+}
+
+model Lesson {
+  id          String         @id @default(cuid())
+  moduleId    String
+  title       String
+  slug        String
+  description String
+  order       Int
+  contentType String
+  content     String?
+  module      Module         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  resources   Resource[]
+  progress    UserProgress[]
+
+  @@unique([moduleId, slug])
+}
+
+model Resource {
+  id          String  @id @default(cuid())
+  lessonId    String
+  type        String
+  title       String
+  url         String
+  description String?
+  order       Int     @default(0)
+  lesson      Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+}
+
+model UserProgress {
+  userId      String
+  lessonId    String
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@id([userId, lessonId])
+}
+
+model UserTask {
+  id        String   @id @default(cuid())
+  userId    String
+  moduleId  String
+  title     String
+  completed Boolean  @default(false)
+  order     Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+}
