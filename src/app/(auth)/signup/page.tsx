@@ -17,7 +17,7 @@ export default function SignupPage() {
     setLoading(true); setError('')
     const res = await fetch('/api/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, password }) })
     if (!res.ok) { const d = await res.json(); setError(d.error || 'Signup failed'); setLoading(false); return }
-    router.push('/dashboard')
+    window.location.href = '/dashboard'
   }
 
   return (

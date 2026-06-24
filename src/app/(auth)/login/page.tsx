@@ -16,7 +16,7 @@ export default function LoginPage() {
     setLoading(true); setError('')
     const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) })
     if (!res.ok) { setError('Invalid email or password'); setLoading(false); return }
-    router.push('/dashboard')
+    window.location.href = '/dashboard'
   }
 
   return (
